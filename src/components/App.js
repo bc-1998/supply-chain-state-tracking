@@ -8,10 +8,10 @@ import Main from './Main'
 
 class App extends Component {
 
-  async componentWillMount() {
+  async componentWillMount() {    
     await this.detectAsset()
     await this.loadWeb3()
-    await this.loadBlockchainData()
+    await this.loadBlockchainData()   
   }
 
   async detectAsset() {
@@ -55,6 +55,7 @@ class App extends Component {
     }
   }
 
+  //This function reads contract info and setState for react to refresh the page by calling render().
   loadAsset = async () => {
     const contract = new window.web3.eth.Contract(Asset.abi, this.state.contractAddress)
     const name = await contract.methods.name().call()
@@ -71,6 +72,7 @@ class App extends Component {
     })
   }
 
+  //This function deploys a new contract for every new input Asset.
   createAsset = async (name) => {
     this.setState({ loading: true })
     const contract = new window.web3.eth.Contract(Asset.abi)
@@ -84,17 +86,27 @@ class App extends Component {
       this.setState({ contractAddress: receipt.contractAddress })
       await this.loadAsset()
       this.setState({ loading: false })
+    }).once('error', async(error)=>{
+      this.setState({loading:false})
+      alert("Error occured. Please check if there's sufficient Gas and address validity.");
     })
   }
 
-  sendAsset = async (to) => {
-    this.setState({ loading: true })
-    this.state.contract.methods.send(to).send({
-      from: this.state.account
-    }).once('receipt', async (receipt) => {
-      await this.loadAsset()
-      this.setState({ loading: false })
-    })
+   sendAsset = async (to) => {
+    if (window.web3.utils.isAddress(to)) {
+      this.setState({ loading: true })
+      this.state.contract.methods.send(to).send({
+        from: this.state.account
+      }).once('receipt', async (receipt) => {
+        await this.loadAsset()
+        this.setState({ loading: false })
+      }).once('error', async(error)=>{
+        this.setState({loading:false})
+        alert("Error occured. Please check if there's sufficient Gas and address validity.");
+      })}
+      else{
+        alert("address is invalid")
+      }
   }
 
   receiveAsset = async () => {
@@ -104,6 +116,9 @@ class App extends Component {
     }).once('receipt', async (receipt) => {
       await this.loadAsset()
       this.setState({ loading: false })
+    }).once('error', async(error)=>{
+      this.setState({loading:false})
+      alert("Error occured. Please check if there's sufficient Gas and address validity.");
     })
   }
 

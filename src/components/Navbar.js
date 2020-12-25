@@ -11,7 +11,7 @@ class Navbar extends Component {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Supply Chain State Tracking
+          Supply Chain Asset State Tracking
         </a>
 
         <ul className="navbar-nav px-3">
